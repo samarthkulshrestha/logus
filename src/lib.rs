@@ -48,7 +48,7 @@ impl Correctness {
         let mut c = [Correctness::Incorrect; 5];
 
         // mark as correct
-        for (i, (a, g)) in ans.chars().zip(guess.chars()).enumerate() {
+        for (i, (a, g)) in ans.bytes().zip(guess.bytes()).enumerate() {
             if a == g {
                 c[i] = Correctness::Correct;
             }
@@ -62,12 +62,12 @@ impl Correctness {
             }
         }
 
-        for (i, g) in guess.chars().enumerate() {
+        for (i, g) in guess.bytes().enumerate() {
             if c[i] == Correctness::Correct {
                 // already marked correct
                 continue;
             }
-            if ans.chars().enumerate().any(|(i, a)| {
+            if ans.bytes().enumerate().any(|(i, a)| {
                 if a == g && !used[i] {
                     used[i] = true;
                     return true;
