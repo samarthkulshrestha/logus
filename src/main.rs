@@ -22,7 +22,7 @@ enum Implementation {
     Once,
     Precalc,
     Weight,
-    Prune,
+    Enum,
     Cutoff,
 }
 
@@ -48,8 +48,8 @@ fn main() {
         Implementation::Weight => {
             play(logus::algorithms::Weight::new, args.max);
         }
-        Implementation::Prune => {
-            play(logus::algorithms::Prune::new, args.max);
+        Implementation::Enum => {
+            play(logus::algorithms::Enumerate::new, args.max);
         }
         Implementation::Cutoff => {
             play(logus::algorithms::Cutoff::new, args.max);
@@ -75,5 +75,5 @@ where
             eprintln!("failed to guess");
         }
     }
-    println!("average score: {:.2}", score as f64 / games as f64);
+    println!("average score: {:.4}", score as f64 / games as f64);
 }

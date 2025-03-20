@@ -16,8 +16,8 @@ pub use precalc::Precalc;
 mod weight;
 pub use weight::Weight;
 
-mod prune;
-pub use prune::Prune;
+mod enumerate;
+pub use enumerate::Enumerate;
 
 mod cutoff;
 pub use cutoff::Cutoff;
