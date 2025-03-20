@@ -225,7 +225,6 @@ mod tests {
             ($prev:literal + [$($mask:tt)+] disallows $next:literal) => {
                 assert!(!Guess {
                 word: Cow::Borrowed($prev),
-                word: $prev.to_string(),
                 mask: mask![$($mask )+]
                 }
                 .matches($next));
