@@ -21,6 +21,7 @@ enum Implementation {
     Vecrem,
     Once,
     Precalc,
+    Weight,
 }
 
 fn main() {
@@ -42,6 +43,9 @@ fn main() {
         Implementation::Precalc => {
             play(logus::algorithms::Precalc::new, args.max);
         }
+        Implementation::Weight => {
+            play(logus::algorithms::Weight::new, args.max);
+        }
     }
 }
 
@@ -50,12 +54,18 @@ where
     G: Guesser,
 {
     let w = logus::Wordle::new();
+    let mut score = 0;
+    let mut games = 0;
+
     for ans in GAMES.split_whitespace().take(max.unwrap_or(usize::MAX)) {
         let guesser = (mk)();
-        if let Some(score) = w.play(ans, guesser) {
-            println!("guessed '{}' in {}", ans, score);
+        if let Some(s) = w.play(ans, guesser) {
+            games += 1;
+            score += s;
+            println!("guessed '{}' in {}", ans, s);
         } else {
             eprintln!("failed to guess");
         }
     }
+    println!("average score: {:.2}", score as f64 / games as f64);
 }
