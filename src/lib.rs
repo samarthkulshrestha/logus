@@ -101,75 +101,7 @@ pub struct Guess<'a> {
 
 impl Guess<'_> {
     pub fn matches(&self, word: &str) -> bool {
-        assert_eq!(self.word.len(), 5);
-        assert_eq!(word.len(), 5);
-
-        // first, check correct letters
-        let mut used = [false; 5];
-        for (i, ((g, &m), w)) in self
-            .word
-            .bytes()
-            .zip(&self.mask)
-            .zip(word.bytes())
-            .enumerate()
-        {
-            if m == Correctness::Correct {
-                if g != w {
-                    return false;
-                } else {
-                    used[i] = true;
-                }
-            }
-        }
-
-        for (i, (w, &m)) in word.bytes().zip(&self.mask).enumerate() {
-            if m == Correctness::Correct {
-                // must be correct, or we'd have returned in the earlier loop
-                continue;
-            }
-
-            let mut plausible = true;
-            if self
-                .word
-                .bytes()
-                .zip(&self.mask)
-                .enumerate()
-                .any(|(j, (g, m))| {
-                    if g != w {
-                        return false;
-                    }
-                    if used[j] {
-                        return false;
-                    }
-
-                    match m {
-                        Correctness::Correct => unreachable!(
-                        "all correct guesses should have result in return or be used"
-                    ),
-                        Correctness::Misplaced if j == i => {
-                            plausible = false;
-                            return false;
-                        }
-                        Correctness::Misplaced => {
-                            used[j] = true;
-                            return true;
-                        }
-                        Correctness::Incorrect => {
-                            // TODO: early return
-                            plausible = false;
-                            return false;
-                        }
-                    }
-                })
-            && plausible
-            {
-            } else if !plausible {
-                return false;
-            } else {
-            }
-        }
-
-        true
+        return Correctness::compute(word, &self.word) == self.mask;
     }
 }
 
@@ -243,6 +175,7 @@ mod tests {
             check!("baaaa" + [I C M I I] disallows "caacc");
             check!("aaabb" + [C M I I I] disallows "accaa");
             check!("abcde" + [I I I I I] disallows "bcdea");
+            check!("tares" + [I M M I I] disallows "brink");
         }
     }
 
