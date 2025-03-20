@@ -24,6 +24,7 @@ enum Implementation {
     Weight,
     Enum,
     Cutoff,
+    Popular,
 }
 
 fn main() {
@@ -53,6 +54,9 @@ fn main() {
         }
         Implementation::Cutoff => {
             play(logus::algorithms::Cutoff::new, args.max);
+        }
+        Implementation::Popular => {
+            play(logus::algorithms::Popular::new, args.max);
         }
     }
 }
