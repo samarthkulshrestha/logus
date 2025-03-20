@@ -85,7 +85,7 @@ possible solutions. Here's how it works:
    ```
 
 ## credits
-This project was inspired by the [3blue1brown](https://www.youtube.com/@3blue1brown): [Solving Wordle using information theory](https://youtu.be/v68zYyaEmEA).
+This project was inspired by the [3blue1brown](https://www.youtube.com/@3blue1brown) video: [Solving Wordle using information theory](https://youtu.be/v68zYyaEmEA).
 
 
 ### contribute
