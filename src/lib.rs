@@ -75,6 +75,43 @@ impl Correctness {
         c
     }
 
+    fn check(answer: &str, guess: &str, expected: &[Self; 5]) -> bool {
+        assert_eq!(answer.len(), 5);
+        assert_eq!(guess.len(), 5);
+        let mut used = [false; 5];
+
+        // check correct letters
+        for (i, (a, g)) in answer.bytes().zip(guess.bytes()).enumerate() {
+            if a == g {
+                if expected[i] != Correctness::Correct {
+                    return false;
+                }
+                used[i] = true;
+            } else if expected[i] == Correctness::Correct {
+                return false;
+            }
+        }
+
+        // check misplaced letters
+        for (g, e) in guess.bytes().zip(expected.iter()) {
+            if *e == Correctness::Correct {
+                continue;
+            }
+            let is_misplaced = answer.bytes().enumerate().any(|(i, a)| {
+                if a == g && !used[i] {
+                    used[i] = true;
+                    return true;
+                }
+                false
+            });
+            if is_misplaced != (*e == Correctness::Misplaced) {
+                return false;
+            }
+        }
+
+        // the rest will be all correctly incorrect letters
+        true
+    }
 
     pub fn patterns() -> impl Iterator<Item = [Self; 5]> {
         itertools::iproduct!(
