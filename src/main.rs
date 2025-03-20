@@ -3,7 +3,7 @@ use logus::Guesser;
 
 const GAMES: &str = include_str!("../answers.txt");
 
-/// simple program to greet a person
+/// information theory-based wordle-solving algorithms
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 struct Args {
