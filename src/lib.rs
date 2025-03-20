@@ -34,7 +34,7 @@ impl Wordle {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Correctness {
     Correct,            // green
     Misplaced,          // yellow

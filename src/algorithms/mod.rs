@@ -9,3 +9,6 @@ pub use vecremain::Vecrem;
 
 mod once_init;
 pub use once_init::OnceInit;
+
+mod precalc;
+pub use precalc::Precalc;
