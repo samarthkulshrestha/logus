@@ -24,3 +24,6 @@ pub use cutoff::Cutoff;
 
 mod popular;
 pub use popular::Popular;
+
+mod sigmoid;
+pub use sigmoid::Sigmoid;

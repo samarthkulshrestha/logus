@@ -25,6 +25,7 @@ enum Implementation {
     Enum,
     Cutoff,
     Popular,
+    Sigmoid,
 }
 
 fn main() {
@@ -58,6 +59,9 @@ fn main() {
         Implementation::Popular => {
             play(logus::algorithms::Popular::new, args.max);
         }
+        Implementation::Sigmoid => {
+            play(logus::algorithms::Sigmoid::new, args.max);
+        }
     }
 }
 
@@ -80,4 +84,20 @@ where
         }
     }
     println!("average score: {:.4}", score as f64 / games as f64);
+}
+
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn first_10_games_with_cutoff() {
+        let w = logus::Wordle::new();
+        let results: Vec<_> = crate::GAMES
+            .split_whitespace()
+            .take(10)
+            .filter_map(|answer| w.play(answer, logus::algorithms::Cutoff::new()))
+            .collect();
+
+        assert_eq!(results, [4, 4, 4, 4, 4, 5, 4, 5, 4, 2]);
+    }
 }

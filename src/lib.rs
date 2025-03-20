@@ -46,71 +46,24 @@ impl Correctness {
         assert_eq!(ans.len(), 5);
         assert_eq!(guess.len(), 5);
         let mut c = [Correctness::Incorrect; 5];
-        let mut used = [false; 5];
+        let answer_bytes = ans.as_bytes();
+        let guess_bytes = guess.as_bytes();
 
-        // mark as correct
-        for (i, (a, g)) in ans.bytes().zip(guess.bytes()).enumerate() {
-            if a == g {
+        for (i, &a) in answer_bytes.iter().enumerate() {
+            if a == guess_bytes[i] {
+                // mark as correct
                 c[i] = Correctness::Correct;
-                used[i] = true;
-            }
-        }
-
-        for (i, g) in guess.bytes().enumerate() {
-            if c[i] == Correctness::Correct {
-                // already marked correct
-                continue;
-            }
-            if ans.bytes().enumerate().any(|(i, a)| {
-                if a == g && !used[i] {
-                    used[i] = true;
-                    return true;
-                }
-                false
+            } else if let Some(j) = guess_bytes.iter().enumerate().position(|(j, &g)| {
+                // the position in guess can only be marked as Misplaced,
+                // if it isn't Correct and wasn't already marked before.
+                a == g && answer_bytes[j] != a && c[j] == Correctness::Incorrect
             }) {
-                c[i] = Correctness::Misplaced;
+                // Mark things yellow
+                c[j] = Correctness::Misplaced;
             }
         }
 
         c
-    }
-
-    fn check(answer: &str, guess: &str, expected: &[Self; 5]) -> bool {
-        assert_eq!(answer.len(), 5);
-        assert_eq!(guess.len(), 5);
-        let mut used = [false; 5];
-
-        // check correct letters
-        for (i, (a, g)) in answer.bytes().zip(guess.bytes()).enumerate() {
-            if a == g {
-                if expected[i] != Correctness::Correct {
-                    return false;
-                }
-                used[i] = true;
-            } else if expected[i] == Correctness::Correct {
-                return false;
-            }
-        }
-
-        // check misplaced letters
-        for (g, e) in guess.bytes().zip(expected.iter()) {
-            if *e == Correctness::Correct {
-                continue;
-            }
-            let is_misplaced = answer.bytes().enumerate().any(|(i, a)| {
-                if a == g && !used[i] {
-                    used[i] = true;
-                    return true;
-                }
-                false
-            });
-            if is_misplaced != (*e == Correctness::Misplaced) {
-                return false;
-            }
-        }
-
-        // the rest will be all correctly incorrect letters
-        true
     }
 
     pub fn patterns() -> impl Iterator<Item = [Self; 5]> {
