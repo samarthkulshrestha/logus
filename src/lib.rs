@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::{borrow::Cow, collections::HashSet};
 
 pub mod algorithms;
 
@@ -28,7 +28,7 @@ impl Wordle {
             }
             assert!(self.dict.contains(&*guess), "guess '{}' is not in the dict", guess);
             let correctness = Correctness::compute(ans, &guess);
-            hist.push(Guess { word: guess, mask: correctness });
+            hist.push(Guess { word: Cow::Owned(guess), mask: correctness });
         }
         None
     }
@@ -94,12 +94,12 @@ impl Correctness {
     }
 }
 
-pub struct Guess {
-    pub word: String,
+pub struct Guess<'a> {
+    pub word: Cow<'a, str>,
     pub mask: [Correctness; 5],
 }
 
-impl Guess {
+impl Guess<'_> {
     pub fn matches(&self, word: &str) -> bool {
         assert_eq!(self.word.len(), 5);
         assert_eq!(word.len(), 5);
@@ -211,11 +211,12 @@ mod tests {
 
     mod guess_matcher {
         use crate::Guess;
+        use std::borrow::Cow;
 
         macro_rules! check {
             ($prev:literal + [$($mask:tt)+] allows $next:literal) => {
                 assert!(Guess {
-                word: $prev.to_string(),
+                word: Cow::Borrowed($prev),
                 mask: mask![$($mask )+]
                 }
                 .matches($next));
@@ -223,7 +224,7 @@ mod tests {
             };
             ($prev:literal + [$($mask:tt)+] disallows $next:literal) => {
                 assert!(!Guess {
-                word: $prev.to_string(),
+                word: Cow::Borrowed($prev),
                 mask: mask![$($mask )+]
                 }
                 .matches($next));

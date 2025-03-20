@@ -3,5 +3,9 @@ name = "logus"
 version = "0.1.0"
 edition = "2021"
 
+[profile.release]
+debug = true
+
 [dependencies]
 itertools = "0.14.0"
+clap = { version = "3", features = ["derive"] }
