@@ -23,9 +23,9 @@ possible solutions. Here's how it works:
 1. **Entropy Calculation**:
    - For each guess, calculate the possible feedback patterns (e.g., Green-Yellow-Gray combinations).
    - Use the probability of each pattern to compute its entropy using the formula:
-     \[
+     ```math
      H = -\sum P(x) \log_2 P(x)
-     \]
+     ```
    - Higher entropy means greater potential to reduce the search space.
 2. **Word Selection**:
    - Start with a uniform probability distribution of all valid five-letter words (~13,000).
