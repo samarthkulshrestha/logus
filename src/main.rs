@@ -22,6 +22,7 @@ enum Implementation {
     Once,
     Precalc,
     Weight,
+    Prune,
 }
 
 fn main() {
@@ -45,6 +46,9 @@ fn main() {
         }
         Implementation::Weight => {
             play(logus::algorithms::Weight::new, args.max);
+        }
+        Implementation::Prune => {
+            play(logus::algorithms::Prune::new, args.max);
         }
     }
 }
