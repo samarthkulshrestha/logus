@@ -80,11 +80,97 @@ impl Correctness {
 
         c
     }
+
+
+    pub fn patterns() -> impl Iterator<Item = [Self; 5]> {
+        itertools::iproduct!(
+            [Self::Correct, Self::Misplaced, Self::Incorrect],
+            [Self::Correct, Self::Misplaced, Self::Incorrect],
+            [Self::Correct, Self::Misplaced, Self::Incorrect],
+            [Self::Correct, Self::Misplaced, Self::Incorrect],
+            [Self::Correct, Self::Misplaced, Self::Incorrect]
+        )
+            .map(|(a, b, c, d, e)| [a, b, c, d, e])
+    }
 }
 
 pub struct Guess {
     pub word: String,
     pub mask: [Correctness; 5],
+}
+
+impl Guess {
+    pub fn matches(&self, word: &str) -> bool {
+        assert_eq!(self.word.len(), 5);
+        assert_eq!(word.len(), 5);
+
+        // first, check correct letters
+        let mut used = [false; 5];
+        for (i, ((g, &m), w)) in self
+            .word
+            .chars()
+            .zip(&self.mask)
+            .zip(word.chars())
+            .enumerate()
+        {
+            if m == Correctness::Correct {
+                if g != w {
+                    return false;
+                } else {
+                    used[i] = true;
+                }
+            }
+        }
+
+        for (i, (w, &m)) in word.chars().zip(&self.mask).enumerate() {
+            if m == Correctness::Correct {
+                // must be correct, or we'd have returned in the earlier loop
+                continue;
+            }
+
+            let mut plausible = true;
+            if self
+                .word
+                .chars()
+                .zip(&self.mask)
+                .enumerate()
+                .any(|(j, (g, m))| {
+                    if g != w {
+                        return false;
+                    }
+                    if used[j] {
+                        return false;
+                    }
+
+                    match m {
+                        Correctness::Correct => unreachable!(
+                        "all correct guesses should have result in return or be used"
+                    ),
+                        Correctness::Misplaced if j == i => {
+                            plausible = false;
+                            return false;
+                        }
+                        Correctness::Misplaced => {
+                            used[j] = true;
+                            return true;
+                        }
+                        Correctness::Incorrect => {
+                            // TODO: early return
+                            plausible = false;
+                            return false;
+                        }
+                    }
+                })
+            && plausible
+            {
+            } else if !plausible {
+                return false;
+            } else {
+            }
+        }
+
+        true
+    }
 }
 
 pub trait Guesser {
@@ -111,7 +197,54 @@ macro_rules! guesser {
 }
 
 #[cfg(test)]
+macro_rules! mask {
+    (C) => {$crate::Correctness::Correct};
+    (M) => {$crate::Correctness::Misplaced};
+    (I) => {$crate::Correctness::Incorrect};
+    ($($c:tt)+) => {[
+        $(mask!($c)),+
+    ]}
+}
+
+#[cfg(test)]
 mod tests {
+
+    mod guess_matcher {
+        use crate::Guess;
+
+        macro_rules! check {
+            ($prev:literal + [$($mask:tt)+] allows $next:literal) => {
+                assert!(Guess {
+                word: $prev.to_string(),
+                mask: mask![$($mask )+]
+                }
+                .matches($next));
+                assert_eq!($crate::Correctness::compute($next, $prev), mask![$($mask )+]);
+            };
+            ($prev:literal + [$($mask:tt)+] disallows $next:literal) => {
+                assert!(!Guess {
+                word: $prev.to_string(),
+                mask: mask![$($mask )+]
+                }
+                .matches($next));
+                assert_ne!($crate::Correctness::compute($next, $prev), mask![$($mask )+]);
+            }
+        }
+
+        #[test]
+        fn guess_matcher_tests() {
+            check!("abcde" + [C C C C C] allows "abcde");
+            check!("abcdf" + [C C C C C] disallows "abcde");
+            check!("abcde" + [I I I I I] allows "fghij");
+            check!("abcde" + [M M M M M] allows "eabcd");
+            check!("abcde" + [M M M M M] allows "eabcd");
+            check!("baaaa" + [I C M I I] allows "aaccc");
+            check!("baaaa" + [I C M I I] disallows "caacc");
+            check!("aaabb" + [C M I I I] disallows "accaa");
+            check!("abcde" + [I I I I I] disallows "bcdea");
+        }
+    }
+
     mod game {
         use crate::{Guess, Wordle};
 
@@ -194,15 +327,6 @@ mod tests {
 
     mod compute {
         use crate::Correctness;
-
-        macro_rules! mask {
-            (C) => {Correctness::Correct};
-            (M) => {Correctness::Misplaced};
-            (I) => {Correctness::Incorrect};
-            ($($c:tt)+) => {[
-                $(mask!($c)),+
-            ]}
-        }
 
         #[test]
         fn all_correct() {
