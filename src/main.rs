@@ -18,6 +18,7 @@ struct Args {
 enum Implementation {
     Naive,
     Allocs,
+    Vecrem
 }
 
 fn main() {
@@ -29,6 +30,9 @@ fn main() {
         }
         Implementation::Allocs => {
             play(logus::algorithms::Allocs::new, args.max);
+        }
+        Implementation::Vecrem => {
+            play(logus::algorithms::Vecrem::new, args.max);
         }
     }
 }
