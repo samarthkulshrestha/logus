@@ -69,11 +69,11 @@ possible solutions. Here's how it works:
 1. Clone the repository:
    ```bash
    git clone https://github.com/samarthkulshrestha/logus.git
-   cd wordle-solver
+   cd logus
    ```
 2. Run the solver:
    ```bash
-   cargo run --release -i <implementation> -m <max-games>
+   cargo run --release -- -i <implementation> -m <max-games>
    ```
 3. Usage options:
    ```
